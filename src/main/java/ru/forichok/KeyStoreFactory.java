@@ -1,5 +1,6 @@
 package ru.forichok;
 
+import sun.misc.BASE64Encoder;
 import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.x509.X500Name;
 
@@ -30,6 +31,10 @@ class KeyStoreFactory {
         certAndKeyGen.generate(keyLength);
         long validSecs = (long) 365 * 24 * 60 * 60;
         X509Certificate cert = certAndKeyGen.getSelfCertificate(dn, validSecs);
+
+        BASE64Encoder encoder = new BASE64Encoder();
+        String signedContent = encoder.encode(cert.getEncoded());
+        System.out.println(signedContent);
         keystore.setKeyEntry(keyAlias, certAndKeyGen.getPrivateKey(), keyPassword, new X509Certificate[]{cert});
         return keystore;
     }

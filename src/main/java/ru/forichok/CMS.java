@@ -27,23 +27,26 @@ public class CMS {
   }
 
   public static void main(String[] args) throws Exception {
-    String[] arr = new String[200000];
+    String[] arr = new String[20000];
     Arrays.fill(arr, " ");
     String text = "TEST CONTENT TO SIGN ";
     String tmp = String.join(text, arr);
     byte[] signData = tmp.getBytes();
 
-    Organization org1 = new Organization();
-    X509Certificate cert1 = org1.cert();
-    SignerInfoGenerator siGen1 = org1.createSignerInfoGenerator();
-    X509Certificate[] certs = new X509Certificate[]{cert1};
-    SignerInfoGenerator[] siGenerator = new SignerInfoGenerator[]{siGen1};
+//    Organization org1 = new Organization();
+//    X509Certificate cert1 = org1.cert();
+//    SignerInfoGenerator siGen1 = org1.createSignerInfoGenerator();
+//    X509Certificate[] certs = new X509Certificate[]{cert1};
+//    SignerInfoGenerator[] siGenerator = new SignerInfoGenerator[]{siGen1};
 
-    byte[] sign = getSign(signData, certs, siGenerator);
+    Organization.getJks();
 
-    verifySign(signData, sign);
-    verifyIncorrectSing(signData, sign);
-    verifyCorruptedSing(signData, sign);
+
+//    byte[] sign = getSign(signData, certs, siGenerator);
+//
+//    verifySign(signData, sign);
+//    verifyIncorrectSing(signData, sign);
+//    verifyCorruptedSing(signData, sign);
   }
 
 
@@ -64,12 +67,12 @@ public class CMS {
   }
 
   public static void verifyCorruptedSing(byte[] signData, byte[] sign) throws Exception {
-    sign[1024] = 4;
+//    sign[1024] = 4;
     verifySign(signData, sign);
   }
 
   public static void verifyIncorrectSing(byte[] signData, byte[] sign) throws Exception {
-    sign[1273] = 4;
+//    sign[1273] = 4;
     verifySign(signData, sign);
   }
 
@@ -96,7 +99,7 @@ public class CMS {
 
         X509CertificateHolder certHolder = (X509CertificateHolder) certIt.next();
 
-
+        SignerInformationVerifier a = new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(certHolder);
         if (!signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(certHolder))) {
           System.out.println("Verify failed\n");
         } else {
