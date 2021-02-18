@@ -48,20 +48,12 @@ class Organization {
 
   private void loadKeystoreData(KeyStore keystore, String keystorePassword) throws Exception {
     Enumeration<String> aliases = keystore.aliases();
-
-    HashMap<String, Key> keys = new HashMap<>();
-    HashMap<String, X509Certificate> certificates = new HashMap<>();
-
     while (aliases.hasMoreElements()) {
       String alias = aliases.nextElement();
-
       if (keystore.isKeyEntry(alias)) {
         privateKey = (PrivateKey) keystore.getKey(alias, keystorePassword.toCharArray());
-//        keys.put(alias.toLowerCase(), key); //any key,value collection
-
         Certificate cert = keystore.getCertificate(alias);
         if (cert instanceof X509Certificate) {
-          certificates.put(alias.toLowerCase(), (X509Certificate) cert); //any key,value collection
           this.certificate = (X509Certificate) cert;
         }
       }
