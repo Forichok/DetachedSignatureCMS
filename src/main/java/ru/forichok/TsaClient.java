@@ -113,7 +113,7 @@ class TsaClient {
    * @throws IOException
    * @throws TSPException
    */
-  public byte[] getTimeStampToken(byte[] imprint) throws IOException, TSPException {
+  public byte[] getTimeStampTokenBytes(byte[] imprint) throws IOException, TSPException {
     byte[] respBytes = null;
     // Setup the time stamp request
     TimeStampRequestGenerator tsqGenerator = new TimeStampRequestGenerator();
@@ -156,6 +156,43 @@ class TsaClient {
     this.tokenSizeEstimate = encoded.length + 32;
     return encoded;
   }
+
+  public TimeStampToken getTimeStampToken(byte[] imprint) throws IOException, TSPException {
+    byte[] respBytes = null;
+    // Setup the time stamp request
+    TimeStampRequestGenerator tsqGenerator = new TimeStampRequestGenerator();
+    tsqGenerator.setCertReq(true);
+    // tsqGenerator.setReqPolicy("1.3.6.1.4.1.601.10.3.1");
+    BigInteger nonce = BigInteger.valueOf(System.currentTimeMillis());
+    TimeStampRequest request = tsqGenerator.generate(new ASN1ObjectIdentifier("1.2.643.2.2.9"), imprint, nonce); // GOST3411
+    byte[] requestBytes = request.getEncoded();
+
+    // Call the communications layer
+    respBytes = getTSAResponse(requestBytes);
+
+    // Handle the TSA response
+    TimeStampResponse response = new TimeStampResponse(respBytes);
+
+    // validate communication level attributes (RFC 3161 PKIStatus)
+    response.validate(request);
+    PKIFailureInfo failure = response.getFailInfo();
+    int value = (failure == null) ? 0 : failure.intValue();
+    if (value != 0) {
+      // @todo: Translate value of 15 error codes defined by PKIFailureInfo to string
+      throw new IOException("null value");
+    }
+    // @todo: validate the time stap certificate chain (if we want
+    //        assure we do not sign using an invalid timestamp).
+
+    // extract just the time stamp token (removes communication status info)
+    TimeStampToken tsToken = response.getTimeStampToken();
+    if (tsToken == null) {
+      throw new IOException("NULL TOKEN");
+    }
+    return tsToken;
+  }
+
+
 
   /**
    * Get timestamp token - communications layer
