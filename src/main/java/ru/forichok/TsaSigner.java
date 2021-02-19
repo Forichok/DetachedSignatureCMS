@@ -26,7 +26,7 @@ public class TsaSigner {
 
   public static Attribute createTspAttribute(byte[] data)
       throws GeneralSecurityException, TSPException, IOException {
-    TsaClient tsaClient = new TsaClient("http://ca.signfiles.com/TSAServer.aspx");
+    TsaClient tsaClient = new TsaClient(" http://www.cryptopro.ru/tsp/");
     byte[] tsImprint = tsaClient.getMessageDigest().digest(data);
     TimeStampToken tsToken = tsaClient.getTimeStampToken(tsImprint);
     return new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken,
